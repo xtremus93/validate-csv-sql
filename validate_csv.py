@@ -50,8 +50,8 @@ _TYPE_FAMILY = {
     "char":      "varchar",
     "nchar":     "varchar",
     "date":      "date",
-    "datetime":  "date",
-    "datetime2": "date",
+    "datetime":  "datetime",
+    "datetime2": "datetime",
     "bit":       "bit",
 }
 
@@ -184,7 +184,11 @@ def _parse_column_def(raw: str) -> dict | None:
 # VALIDATORS
 # ---------------------------------------------------------------------------
 
-_DATE_FORMAT = "%m/%d/%Y"
+_DATE_FORMAT     = "%m/%d/%Y"
+_DATETIME_FORMATS = [
+    "%m/%d/%Y %H:%M",      # MM/DD/YYYY HH:mm
+    "%m/%d/%Y %H:%M:%S",   # MM/DD/YYYY HH:mm:ss
+]
 
 
 def validate_int(value: str, col: dict) -> str | None:
@@ -239,6 +243,16 @@ def validate_date(value: str, col: dict) -> str | None:
     return None
 
 
+def validate_datetime(value: str, col: dict) -> str | None:
+    for fmt in _DATETIME_FORMATS:
+        try:
+            datetime.strptime(value, fmt)
+            return None
+        except ValueError:
+            continue
+    return f"'{value}' does not match MM/DD/YYYY HH:mm or MM/DD/YYYY HH:mm:ss"
+
+
 def validate_bit(value: str, col: dict) -> str | None:
     if value not in ('0', '1'):
         return f"'{value}' is not a valid BIT value (expected 0 or 1)"
@@ -246,11 +260,12 @@ def validate_bit(value: str, col: dict) -> str | None:
 
 
 _VALIDATORS = {
-    'int':     validate_int,
-    'decimal': validate_decimal,
-    'varchar': validate_varchar,
-    'date':    validate_date,
-    'bit':     validate_bit,
+    'int':      validate_int,
+    'decimal':  validate_decimal,
+    'varchar':  validate_varchar,
+    'date':     validate_date,
+    'datetime': validate_datetime,
+    'bit':      validate_bit,
 }
 
 
