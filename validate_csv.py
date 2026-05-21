@@ -127,7 +127,7 @@ def _parse_column_def(raw: str) -> dict | None:
     pattern = re.compile(
         r'^\[?(?P<name>[^\]\s]+)\]?'            # column name, optional brackets
         r'\s+'
-        r'(?P<type>[A-Za-z]+)'                   # base type
+        r'\[?(?P<type>[A-Za-z]+)\]?'             # base type, optional brackets (SSMS style)
         r'(?:\s*\((?P<args>[^)]+)\))?'           # optional (precision, scale) or (length)
         r'(?:\s+(?P<nullspec>NOT\s+NULL|NULL))?', # optional NULL / NOT NULL
         re.IGNORECASE
